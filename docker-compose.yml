@@ -1,0 +1,42 @@
+version: '3.1'
+services:
+  app:
+    container_name: ib-fx
+    image: ib-fx
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres, rabbitmq
+  rabbitmq:
+    build: rabbitmq/
+    restart: always
+    hostname: rabbitmq
+    ports:
+      - "5671:5671"
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./rabbitmq/setup/:/setup
+    tty: true
+    environment:
+      - RABBIT_HOST=localhost
+      - RABBIT_PORT=5672
+      - RABBITMQ_DEFAULT_USER=quest
+      - RABBITMQ_DEFAULT_PASS=quest
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=ib-fx
+    volumes:
+      - postgres-data:/var/lib/posgresql
+volumes:
+  rabbitmq-data:
+    driver: local
+  postgres-data:
+    driver: local
